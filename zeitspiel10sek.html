@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10 Sekunden Spiel</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-align: center;
+      background: radial-gradient(circle at top, #ffb36b 0, #ff7e5f 30%, #321b3a 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      color: #222;
+      padding: 24px 20px;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      width: 90%;
+      max-width: 480px;
+      animation: fadeIn 0.4s ease-out;
+      backdrop-filter: blur(8px);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1.6rem;
+    }
+
+    .card p {
+      margin-top: 6px;
+      margin-bottom: 6px;
+      line-height: 1.4;
+      font-size: 1rem;
+    }
+
+    button {
+      font-size: 1.1rem;
+      padding: 12px 26px;
+      margin: 16px 8px 4px;
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff512f, #dd2476);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      opacity: 0.9;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #222;
+      outline-offset: 3px;
+    }
+
+    input {
+      font-size: 1rem;
+      padding: 10px 12px;
+      margin: 8px auto 4px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 360px;
+      border: 2px solid #ff7e5f;
+      background: #fff;
+      color: #222;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input::placeholder {
+      color: #999;
+    }
+
+    input:focus-visible {
+      outline: 3px solid #dd2476;
+      outline-offset: 2px;
+    }
+
+    .subtle {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .highlight {
+      font-weight: 600;
+      color: #dd2476;
+    }
+
+    .result-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f5f5f8;
+      border: 1px solid #e3e3ee;
+      text-align: left;
+      font-size: 0.98rem;
+    }
+
+    .result-box p {
+      margin: 4px 0;
+    }
+
+    .result-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    table {
+      margin: 16px auto 0;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 420px;
+      font-size: 0.98rem;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    }
+
+    th {
+      background: #ff7043;
+      color: #fff;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td {
+      text-align: left;
+    }
+
+    td:nth-child(1) {
+      width: 20%;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px 16px;
+      }
+
+      button {
+        width: 100%;
+        max-width: 260px;
+      }
+
+      table {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>10 Sekunden Spiel</h1>
+
+  <!-- Start-Screen: Name -->
+  <div id="start-screen" class="card">
+    <h2>Wer spielt?</h2>
+    <p>Gib deinen Namen ein, um das Spiel zu starten.</p>
+    <input type="text" id="playerName" placeholder="Dein Name">
+    <p class="subtle">Du hast pro Runde <span class="highlight">3 Versuche</span>, um möglichst nah an 10 Sekunden zu kommen.</p>
+    <button id="startGameBtn">Spiel starten</button>
+  </div>
+
+  <!-- Spielscreen -->
+  <div id="game" class="card hidden">
+    <h2 id="playerDisplay"></h2>
+    <p><strong>Ziel:</strong> Versuche, den Timer so zu stoppen, dass genau <span class="highlight">10,000 Sekunden</span> vergangen sind.</p>
+    <p class="subtle">Drücke <strong>Start</strong>, zähle im Kopf und drücke <strong>Stopp</strong>, wenn du glaubst, dass 10 Sekunden vorbei sind.</p>
+
+    <div>
+      <button id="startBtn">Start</button>
+      <button id="stopBtn" class="hidden">Stopp</button>
+    </div>
+
+    <p id="attempts" class="subtle"></p>
+
+    <div id="result" class="result-box hidden"></div>
+  </div>
+
+  <!-- Bestenliste -->
+  <div id="scoreboard" class="card hidden">
+    <h2>Bestenliste</h2>
+    <p class="subtle">Die kleinste Abweichung von 10 Sekunden gewinnt.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Platz</th>
+          <th>Name</th>
+          <th>Beste Zeit (Sek.)</th>
+        </tr>
+      </thead>
+      <tbody id="scoreList"></tbody>
+    </table>
+    <button id="newPlayerBtn">Neuer Spieler</button>
+  </div>
+
+  <script>
+    const startScreen = document.getElementById("start-screen");
+    const game = document.getElementById("game");
+    const scoreboard = document.getElementById("scoreboard");
+
+    const playerNameInput = document.getElementById("playerName");
+    const startGameBtn = document.getElementById("startGameBtn");
+    const playerDisplay = document.getElementById("playerDisplay");
+
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const resultBox = document.getElementById("result");
+    const attemptsDisplay = document.getElementById("attempts");
+    const scoreList = document.getElementById("scoreList");
+    const newPlayerBtn = document.getElementById("newPlayerBtn");
+
+    let playerName = "";
+    let startTime = 0;
+    let attempts = 0;
+    let bestDeviation = Infinity;
+    let bestTime = null;      
+    let scores = [];
+
+    startGameBtn.addEventListener("click", () => {
+      playerName = playerNameInput.value.trim();
+      if (!playerName) {
+        alert("Bitte gib deinen Namen ein!");
+        return;
+      }
+
+      startScreen.classList.add("hidden");
+      scoreboard.classList.add("hidden");
+      game.classList.remove("hidden");
+
+      playerDisplay.textContent = `Spieler: ${playerName}`;
+      attempts = 0;
+      bestDeviation = Infinity;
+      bestTime = null;
+      updateAttempts();
+      clearResult();
+    });
+
+    startBtn.addEventListener("click", () => {
+      startTime = Date.now();
+      clearResult();
+      startBtn.classList.add("hidden");
+      stopBtn.classList.remove("hidden");
+    });
+
+    stopBtn.addEventListener("click", () => {
+      const endTime = Date.now();
+      const elapsedSeconds = (endTime - startTime) / 1000;
+      const deviation = elapsedSeconds - 10;
+      const absDeviation = Math.abs(deviation);
+
+      attempts++;
+
+      if (absDeviation < bestDeviation) {
+        bestDeviation = absDeviation;
+        bestTime = elapsedSeconds;
+      }
+
+      const direction =
+        deviation > 0
+          ? "zu spät"
+          : deviation < 0
+          ? "zu früh"
+          : "perfekt!";
+
+      showResult(elapsedSeconds, absDeviation, direction);
+
+      startBtn.classList.remove("hidden");
+      stopBtn.classList.add("hidden");
+      updateAttempts();
+
+      if (attempts >= 3) {
+        endGame();
+      }
+    });
+
+    function updateAttempts() {
+      attemptsDisplay.textContent = `Versuch ${attempts} von 3`;
+    }
+
+    function clearResult() {
+      resultBox.innerHTML = "";
+      resultBox.classList.add("hidden");
+    }
+
+    function showResult(elapsedSeconds, absDeviation, direction) {
+      resultBox.innerHTML = `
+        <p><span class="result-label">Deine Zeit:</span> ${elapsedSeconds.toFixed(3)} Sekunden</p>
+        <p><span class="result-label">Ziel:</span> 10,000 Sekunden</p>
+        <p><span class="result-label">Abweichung:</span> ${absDeviation.toFixed(3)} Sekunden ${direction}</p>
+      `;
+      resultBox.classList.remove("hidden");
+    }
+
+    function endGame() {
+      game.classList.add("hidden");
+      scoreboard.classList.remove("hidden");
+
+      if (bestTime === null) return;
+
+      scores.push({
+        name: playerName,
+        bestTime: bestTime,
+        bestDeviation: bestDeviation
+      });
+
+      scores.sort((a, b) => a.bestDeviation - b.bestDeviation);
+
+      renderScores();
+    }
+
+    function renderScores() {
+      scoreList.innerHTML = "";
+      scores.forEach((s, i) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${s.name}</td>
+          <td>${s.bestTime.toFixed(3)}</td>
+        `;
+        scoreList.appendChild(row);
+      });
+    }
+
+    newPlayerBtn.addEventListener("click", () => {
+      scoreboard.classList.add("hidden");
+      startScreen.classList.remove("hidden");
+      playerNameInput.value = "";
+      playerNameInput.focus();
+    });
+  </script>
+</body>
+</html>
