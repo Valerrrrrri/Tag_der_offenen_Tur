@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Caesar-Verschlüsselung – Grün</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #022c22, #065f46);
+      color: #ecfdf5;
+    }
+
+    .box {
+      background: rgba(15, 118, 110, 0.95);
+      border-radius: 16px;
+      padding: 20px 24px;
+      width: 90%;
+      max-width: 520px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(16, 185, 129, 0.6);
+    }
+
+    h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+
+    .subtitle {
+      margin: 0 0 16px 0;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #a7f3d0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid #10b981;
+      background: #022c22;
+      color: #a7f3d0;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.6);
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .key-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: #22c55e; /* зелёный слайдер */
+    }
+
+    .key-value {
+      min-width: 32px;
+      text-align: center;
+      padding: 4px 6px;
+      border-radius: 999px;
+      background: #064e3b;
+      border: 1px solid #10b981;
+      font-size: 0.85rem;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      flex: 1;
+      border: none;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      transition: transform 0.05s ease, box-shadow 0.1s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      background: #16a34a;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.7);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #bbf7d0;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Caesar-Verschlüsselung</h1>
+
+    <!-- 1. Text oben -->
+    <div class="section">
+      <label for="inputText">Geheimer Text:</label>
+      <textarea id="inputText" placeholder="Schreibe hier deine Nachricht..."></textarea>
+    </div>
+
+    <!-- 2. Schlüssel wählen -->
+    <div class="section">
+      <label for="shift">Schlüssel (0–25):</label>
+      <div class="key-row">
+        <input id="shift" type="range" min="0" max="25" value="3" />
+        <div class="key-value" id="shiftValue">3</div>
+      </div>
+      <div class="hint">
+        Der Schlüssel sagt, wie viele Buchstaben das Alphabet verschoben wird.
+      </div>
+    </div>
+
+    <!-- 3. Unten zwei Buttons + Ausgabe -->
+    <div class="section">
+      <div class="buttons">
+        <button id="encryptBtn">Verschlüsseln</button>
+        <button id="decryptBtn">Entschlüsseln</button>
+      </div>
+
+      <label for="outputText">Ergebnis:</label>
+      <textarea id="outputText" readonly placeholder="Hier erscheint der verschlüsselte oder entschlüsselte Text..."></textarea>
+    </div>
+  </div>
+
+  <script>
+    // Caesar-Funktion: verschiebt nur Buchstaben A–Z und a–z
+    function caesar(text, shift) {
+      shift = ((shift % 26) + 26) % 26; // immer 0–25
+
+      let result = "";
+
+      for (let i = 0; i < text.length; i++) {
+        const code = text.charCodeAt(i);
+
+        // A–Z
+        if (code >= 65 && code <= 90) {
+          const base = 65;
+          const newCode = ((code - base + shift) % 26) + base;
+          result += String.fromCharCode(newCode);
+        }
+        // a–z
+        else if (code >= 97 && code <= 122) {
+          const base = 97;
+          const newCode = ((code - base + shift) % 26) + base;
+          result += String.fromCharCode(newCode);
+        }
+        // andere Zeichen bleiben gleich
+        else {
+          result += text[i];
+        }
+      }
+
+      return result;
+    }
+
+    const inputText = document.getElementById("inputText");
+    const outputText = document.getElementById("outputText");
+    const shiftInput = document.getElementById("shift");
+    const shiftValue = document.getElementById("shiftValue");
+
+    // Anzeige des aktuellen Schlüssels
+    shiftValue.textContent = shiftInput.value;
+    shiftInput.addEventListener("input", () => {
+      shiftValue.textContent = shiftInput.value;
+    });
+
+    // Verschlüsseln
+    document.getElementById("encryptBtn").addEventListener("click", () => {
+      const text = inputText.value;
+      const shift = parseInt(shiftInput.value, 10) || 0;
+      outputText.value = caesar(text, shift);
+    });
+
+    // Entschlüsseln
+    document.getElementById("decryptBtn").addEventListener("click", () => {
+      const text = inputText.value;
+      const shift = parseInt(shiftInput.value, 10) || 0;
+      outputText.value = caesar(text, -shift);
+    });
+  </script>
+</body>
+</html>
