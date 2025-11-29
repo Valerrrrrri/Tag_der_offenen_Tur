@@ -76,7 +76,7 @@
 
     input[type="range"] {
       flex: 1;
-      accent-color: #22c55e; /* зелёный слайдер */
+      accent-color: #22c55e; 
     }
 
     .key-value {
@@ -162,22 +162,19 @@
   </div>
 
   <script>
-    // Caesar-Funktion: verschiebt nur Buchstaben A–Z und a–z
     function caesar(text, shift) {
-      shift = ((shift % 26) + 26) % 26; // immer 0–25
+      shift = ((shift % 26) + 26) % 26; 
 
       let result = "";
 
       for (let i = 0; i < text.length; i++) {
         const code = text.charCodeAt(i);
 
-        // A–Z
         if (code >= 65 && code <= 90) {
           const base = 65;
           const newCode = ((code - base + shift) % 26) + base;
           result += String.fromCharCode(newCode);
         }
-        // a–z
         else if (code >= 97 && code <= 122) {
           const base = 97;
           const newCode = ((code - base + shift) % 26) + base;
@@ -197,7 +194,6 @@
     const shiftInput = document.getElementById("shift");
     const shiftValue = document.getElementById("shiftValue");
 
-    // Anzeige des aktuellen Schlüssels
     shiftValue.textContent = shiftInput.value;
     shiftInput.addEventListener("input", () => {
       shiftValue.textContent = shiftInput.value;
